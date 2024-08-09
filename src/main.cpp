@@ -12,7 +12,7 @@ void setup() {
     uint32_t pattern[4] = {
         0b111111111111,  // Row 1 (all LEDs on)
         0b000000000000,  // Row 2 (all LEDs off)
-        0b111100011111,   // Row 3 (all LEDs on)
+        0b111110011111,   // Row 3 (all LEDs on)
     };
 
     // Load the pattern into the display and show it

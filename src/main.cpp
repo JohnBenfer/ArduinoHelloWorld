@@ -1,24 +1,71 @@
 #include <Arduino.h>
+#include <ArduinoGraphics.h>
 #include <Arduino_LED_Matrix.h>
+#include "RTC.h"
 
-// Create an instance of the LED display
-ArduinoLEDMatrix display;
+
+ArduinoLEDMatrix matrix;
 
 void setup() {
-    // Initialize the display
-    display.begin();
+    Serial.begin(9600);
 
-    // Define a simple pattern (just an example)
-    uint32_t pattern[4] = {
-        0b111111111111,  // Row 1 (all LEDs on)
-        0b000000000000,  // Row 2 (all LEDs off)
-        0b111110011111,   // Row 3 (all LEDs on)
-    };
+    // setup time
+    RTC.begin();
+    RTCTime mytime(9, Month::AUGUST, 2024, 2, 24, 00, DayOfWeek::FRIDAY, SaveLight::SAVING_TIME_ACTIVE);
 
-    // Load the pattern into the display and show it
-    display.loadFrame(pattern);
+    RTC.setTime(mytime);
+
+
+    matrix.begin();
+
+    matrix.beginDraw();
+    matrix.stroke(0xFFFFFFFF);
+    // add some static text
+    // will only show "UNO" (not enough space on the display)
+    const char text[] = "UNO r4";
+    matrix.textFont(Font_4x6);
+    matrix.beginText(0, 1, 0xFFFFFF);
+    matrix.println(text);
+    matrix.endText();
+
+    matrix.endDraw();
+
+    delay(2000);
 }
 
 void loop() {
-    // Keep the pattern static (nothing to do in the loop)
+    RTCTime currenttime;
+    RTC.getTime(currenttime);
+
+    // Print out date (DD/MM//YYYY)
+    Serial.print(currenttime.getDayOfMonth());
+    Serial.print("/");
+    Serial.print(Month2int(currenttime.getMonth()));
+    Serial.print("/");
+    Serial.print(currenttime.getYear());
+    Serial.print(" - ");
+
+    // Print time (HH/MM/SS)
+    Serial.print(currenttime.getHour());
+    Serial.print(":");
+    Serial.print(currenttime.getMinutes());
+    Serial.print(":");
+    Serial.println(currenttime.getSeconds());
+
+    // Make it scroll!
+    matrix.beginDraw();
+
+    matrix.stroke(0xFFFFFFFF);
+    matrix.textScrollSpeed(55);
+
+    // add the text
+    const char text[] = "    Hello World!   ";
+    matrix.textFont(Font_5x7);
+    matrix.beginText(0, 1, 0xFFFFFF);
+    matrix.println(text);
+    matrix.endText(SCROLL_LEFT);
+
+    matrix.endDraw();
 }
+
+
